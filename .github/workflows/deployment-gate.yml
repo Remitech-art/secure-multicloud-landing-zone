@@ -1,0 +1,44 @@
+name: Deployment Gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+  id-token: write
+
+jobs:
+  approve-deployment:
+    name: Deployment Approval Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Manual approval required
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            environment:
+              description: 'Target deployment environment'
+              required: true
+              default: 'production'
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: approve-deployment
+    environment:
+      name: production
+      url: https://your-production-app.example.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate required approvals
+        run: echo "Deployment approved for environment ${{ github.event.inputs.environment }}"
+
+      - name: Trigger deployment
+        run: |
+          echo "Deploy pipeline would execute here."
