@@ -1,0 +1,2 @@
+Review IAM policy documents and identify overly broad roles, wildcard permissions, and elevated privileges.
+Summarize risks and recommend specific role reductions or scoped permissions.

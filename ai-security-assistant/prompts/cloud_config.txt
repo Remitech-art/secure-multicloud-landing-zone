@@ -1,0 +1,2 @@
+Review cloud configuration artifacts for insecure public access, disabled security controls, and improper monitoring settings.
+Recommend remediation steps for logging, monitoring, and security posture improvements.

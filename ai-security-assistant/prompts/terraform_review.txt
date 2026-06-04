@@ -1,0 +1,3 @@
+Review this Terraform code for security and compliance issues.
+Look for owner-level permissions, broad IAM bindings, disabled logging, and weak network controls.
+Provide a summary of high-risk items and suggestions for least privilege hardening.
