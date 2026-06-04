@@ -126,6 +126,24 @@ variable "allowed_public_cidrs" {
   default     = ["203.0.113.0/24"]
 }
 
+variable "github_organization" {
+  description = "GitHub organization or owner name for GitHub Actions OIDC trust."
+  type        = string
+  default     = ""
+}
+
+variable "github_repository" {
+  description = "GitHub repository name for GitHub Actions OIDC trust."
+  type        = string
+  default     = ""
+}
+
+variable "github_oidc_audience" {
+  description = "OIDC audience used by GitHub Actions when requesting tokens."
+  type        = string
+  default     = "sts.amazonaws.com"
+}
+
 variable "enable_advanced_monitoring" {
   description = "Enable detailed monitoring and alerting"
   type        = bool

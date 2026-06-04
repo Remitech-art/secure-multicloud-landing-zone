@@ -1,5 +1,27 @@
 # Observability
 
+Production observability must include logs, metrics, traces, and alerting across clouds.
+
+AWS
+- CloudWatch for metrics and logs; CloudWatch Alarms for alerting.
+- Centralize logs in an encrypted S3 or a log analytics workspace if required.
+
+Azure
+- Azure Monitor and Log Analytics for metrics and logs.
+- Configure diagnostic settings for resources to send to Log Analytics and Storage.
+
+GCP
+- Cloud Logging and Cloud Monitoring for centralized logs and metrics.
+- Configure export sinks for long-term retention and SIEM integration.
+
+Alerting and Retention
+- Define alerting thresholds and escalation policies.
+- Retain audit logs for at least 90 days (configurable via `log_retention_days`).
+
+Incident Flow
+- Detection → Triage → Escalate → Remediate → Postmortem.
+# Observability
+
 ## Overview
 
 Production systems require unified observability across infrastructure, applications, and security events.

@@ -1,5 +1,24 @@
 # Disaster Recovery Runbook
 
+RTO / RPO
+- Target RTO: 2 hours for critical services
+- Target RPO: 1 hour for critical stateful data
+
+Backup Strategy
+- AWS: Snapshot critical EBS volumes, S3 replication, RDS snapshots
+- Azure: Snapshot VMs, Storage redundancy and replication, SQL backups
+- GCP: Persistent disk snapshots, Cloud Storage versioning, automated exports
+
+Recovery Steps (high level)
+- Identify affected region and services
+- Promote standby resources or run redeploy using Terraform state backups
+- Restore data from latest snapshots and validate integrity
+
+Failover Considerations
+- DNS TTL management and automated DNS failover
+- Cross-region data replication and consistency
+# Disaster Recovery Runbook
+
 ## Objectives
 
 - Define Recovery Time Objective (RTO) and Recovery Point Objective (RPO).

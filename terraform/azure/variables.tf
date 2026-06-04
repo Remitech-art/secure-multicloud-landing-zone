@@ -113,6 +113,18 @@ variable "allowed_public_cidrs" {
   default     = ["203.0.113.0/24"]
 }
 
+variable "github_organization" {
+  description = "GitHub organization or owner name for GitHub Actions OIDC trust."
+  type        = string
+  default     = ""
+}
+
+variable "github_repository" {
+  description = "GitHub repository name for GitHub Actions OIDC trust."
+  type        = string
+  default     = ""
+}
+
 variable "allowed_admin_cidrs" {
   description = "CIDR blocks authorized for administrator access."
   type        = list(string)

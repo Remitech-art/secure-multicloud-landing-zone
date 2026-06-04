@@ -35,6 +35,7 @@ def main():
     parser.add_argument("--iam", type=Path, help="Path to IAM policy files or directory")
     parser.add_argument("--cloud", type=Path, help="Path to cloud configuration files")
     parser.add_argument("--report", action="store_true", help="Generate markdown report")
+    parser.add_argument("--json-output", type=Path, help="Write structured JSON output to file")
     args = parser.parse_args()
 
     terraform_results = scan_terraform(args.terraform) if args.terraform else []
@@ -72,6 +73,24 @@ def main():
         "risk_level": risk_level,
         "recommendations": recommendations,
     })
+
+    # ensure reports directory exists
+    reports_dir = OUTPUT_REPORT.parent
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.json_output:
+        import json
+        output = {
+            "terraform_findings": terraform_results,
+            "compliance_findings": compliance_results,
+            "iam_findings": iam_results,
+            "cloud_findings": cloud_results,
+            "risk_score": risk_score,
+            "risk_level": risk_level,
+            "recommendations": recommendations,
+        }
+        args.json_output.write_text(json.dumps(output, indent=2))
+        print(f"JSON report written to {args.json_output}")
 
     if args.report:
         OUTPUT_REPORT.write_text(report)

@@ -45,6 +45,9 @@ az account show
 
 ## Deployment Steps
 
+> Before deploying cloud landing zones, bootstrap the remote state backends in `terraform/bootstrap/` for AWS, Azure, and GCP.
+> See `docs/BOOTSTRAP_PRODUCTION.md` for the exact production bootstrap flow.
+
 ### Step 1: Clone Repository
 
 ```bash

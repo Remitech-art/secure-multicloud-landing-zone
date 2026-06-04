@@ -53,6 +53,11 @@ output "app_iam_role_arn" {
   description = "ARN of the application IAM role"
 }
 
+output "github_actions_oidc_role_arn" {
+  value       = try(aws_iam_role.github_actions[0].arn, null)
+  description = "ARN of the AWS IAM role trusted by GitHub Actions OIDC."
+}
+
 output "logs_bucket_id" {
   value       = aws_s3_bucket.logs.id
   description = "The ID of the logs S3 bucket"

@@ -3,6 +3,12 @@ variable "project_id" {
   type        = string
 }
 
+variable "project_name" {
+  description = "Project name for resource naming and tagging"
+  type        = string
+  default     = "secure-multicloud"
+}
+
 variable "environment" {
   description = "Deployment environment (dev, staging, prod)."
   type        = string
@@ -59,6 +65,18 @@ variable "allowed_public_cidrs" {
   description = "CIDR blocks allowed for public HTTP/HTTPS access."
   type        = list(string)
   default     = ["203.0.113.0/24"]
+}
+
+variable "github_organization" {
+  description = "GitHub organization or owner name for GitHub Actions workload identity."
+  type        = string
+  default     = ""
+}
+
+variable "github_repository" {
+  description = "GitHub repository name for GitHub Actions workload identity."
+  type        = string
+  default     = ""
 }
 
 variable "enable_security_center" {

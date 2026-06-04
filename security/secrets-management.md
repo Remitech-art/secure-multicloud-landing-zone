@@ -1,3 +1,26 @@
+# Secrets Management (Production Standard)
+
+This guidance describes recommended secrets handling for each cloud provider in production.
+
+AWS
+- Use AWS Secrets Manager for application secrets and credentials.
+- Encrypt secrets with a Customer Managed KMS key (CMK).
+- Rotate secrets regularly and grant access via IAM roles with least privilege.
+
+Azure
+- Use Azure Key Vault for secrets and certificates.
+- Use access policies or RBAC and Managed Identities to grant fine-grained access.
+- Enable purge protection and soft-delete for Key Vaults.
+
+GCP
+- Use Secret Manager for secret storage.
+- Enable CMEK for Secret Manager if required.
+- Grant access via IAM (principals) and avoid embedding secrets in code/config.
+
+Rotation & Access
+- Automate rotation where supported; define rotation windows and audit rotation events.
+- Use short-lived credentials where possible (STS, Workload Identity Federation, Managed Identities).
+- Audit access via CloudTrail / Activity Logs / Audit Logs.
 # Secrets Management
 
 ## Principles

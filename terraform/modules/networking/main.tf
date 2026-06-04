@@ -39,6 +39,18 @@ resource "google_compute_firewall" "module_allow_ingress" {
     protocol = "tcp"
     ports    = ["22", "443", "80"]
   }
-  source_ranges = ["0.0.0.0/0"]
+  # Split ingress rules: SSH limited to admin CIDRs, HTTP/HTTPS limited to public CIDRs
+  source_ranges = var.allowed_public_cidrs
+  project       = var.project_id
+}
+
+resource "google_compute_firewall" "module_allow_ssh" {
+  name    = "${var.network_name}-allow-ssh"
+  network = google_compute_network.module_vpc.name
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+  source_ranges = var.allowed_admin_cidrs
   project       = var.project_id
 }
