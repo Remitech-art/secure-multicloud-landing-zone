@@ -3,6 +3,12 @@ variable "project_id" {
   type        = string
 }
 
+variable "environment" {
+  description = "Deployment environment (dev, staging, prod)."
+  type        = string
+  default     = "prod"
+}
+
 variable "region" {
   description = "GCP region for resource deployment."
   type        = string
@@ -41,6 +47,18 @@ variable "bucket_name" {
   description = "Cloud Storage bucket name for platform artifacts and logs." 
   type        = string
   default     = "secure-multicloud-gcp-bucket"
+}
+
+variable "allowed_admin_cidrs" {
+  description = "CIDR blocks allowed for administrative access such as SSH."
+  type        = list(string)
+  default     = ["10.10.0.0/16"]
+}
+
+variable "allowed_public_cidrs" {
+  description = "CIDR blocks allowed for public HTTP/HTTPS access."
+  type        = list(string)
+  default     = ["203.0.113.0/24"]
 }
 
 variable "enable_security_center" {

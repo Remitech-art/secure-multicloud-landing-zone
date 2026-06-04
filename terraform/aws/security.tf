@@ -21,12 +21,12 @@ resource "aws_security_group" "bastion" {
 
 resource "aws_vpc_security_group_ingress_rule" "bastion_ssh" {
   security_group_id = aws_security_group.bastion.id
-  description       = "Allow SSH access to bastion (restricted to known IPs in production)"
-  
+  description       = "Allow SSH access to bastion from approved CIDRs"
+
   from_port   = 22
   to_port     = 22
   ip_protocol = "tcp"
-  cidr_ipv4   = "0.0.0.0/0"  # TODO: Replace with specific IP ranges in production
+  cidr_blocks = var.allowed_admin_cidrs
 
   tags = {
     Name = "allow-ssh-bastion"
@@ -35,7 +35,7 @@ resource "aws_vpc_security_group_ingress_rule" "bastion_ssh" {
 
 resource "aws_vpc_security_group_egress_rule" "bastion_all" {
   security_group_id = aws_security_group.bastion.id
-  description       = "Allow all outbound traffic from bastion"
+  description       = "Allow outbound traffic from bastion"
   
   ip_protocol = "-1"
   cidr_ipv4   = "0.0.0.0/0"
@@ -110,13 +110,29 @@ resource "aws_vpc_security_group_ingress_rule" "app_https" {
 
 resource "aws_vpc_security_group_egress_rule" "app_all" {
   security_group_id = aws_security_group.app.id
-  description       = "Allow all outbound traffic"
+  description       = "Allow application outbound traffic on approved ports"
   
-  ip_protocol = "-1"
+  from_port   = 443
+  to_port     = 443
+  ip_protocol = "tcp"
   cidr_ipv4   = "0.0.0.0/0"
 
   tags = {
-    Name = "allow-all-egress"
+    Name = "allow-https-egress"
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "app_dns" {
+  security_group_id = aws_security_group.app.id
+  description       = "Allow DNS lookups from application tier"
+  
+  from_port   = 53
+  to_port     = 53
+  ip_protocol = "udp"
+  cidr_ipv4   = "0.0.0.0/0"
+
+  tags = {
+    Name = "allow-dns-egress"
   }
 }
 
@@ -157,13 +173,15 @@ resource "aws_vpc_security_group_ingress_rule" "vpc_endpoints" {
 
 resource "aws_vpc_security_group_egress_rule" "vpc_endpoints" {
   security_group_id = aws_security_group.vpc_endpoints.id
-  description       = "Allow all outbound traffic"
+  description       = "Allow HTTPS outbound traffic from VPC endpoints"
   
-  ip_protocol = "-1"
+  from_port   = 443
+  to_port     = 443
+  ip_protocol = "tcp"
   cidr_ipv4   = "0.0.0.0/0"
 
   tags = {
-    Name = "allow-all-egress"
+    Name = "allow-https-egress"
   }
 }
 

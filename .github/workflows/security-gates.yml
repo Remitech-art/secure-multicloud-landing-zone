@@ -1,0 +1,88 @@
+name: Security Gates
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/**'
+      - 'security/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+env:
+  TF_VERSION: "1.5.0"
+
+jobs:
+  tfsec:
+    name: Terraform Security Scan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        working-directory: ['terraform/aws', 'terraform/azure', 'terraform/gcp']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1
+        with:
+          directory: ${{ matrix.working-directory }}
+          format: sarif
+          output: tfsec-${{ replace(matrix.working-directory, '/', '-') }}.sarif
+
+      - name: Upload tfsec SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: tfsec-${{ replace(matrix.working-directory, '/', '-') }}.sarif
+
+  checkov:
+    name: Checkov IaC Policy Scan
+    runs-on: ubuntu-latest
+    needs: tfsec
+    strategy:
+      matrix:
+        working-directory: ['terraform/aws', 'terraform/azure', 'terraform/gcp']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        run: checkov -d ${{ matrix.working-directory }} --output junitxml --output-file checkov-${{ replace(matrix.working-directory, '/', '-') }}.xml
+
+      - name: Upload Checkov Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkov-${{ replace(matrix.working-directory, '/', '-') }}
+          path: checkov-${{ replace(matrix.working-directory, '/', '-') }}.xml
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    needs: checkov
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Dependency Review
+        uses: github/dependency-review-action@v1

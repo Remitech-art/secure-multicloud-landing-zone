@@ -75,10 +75,10 @@ resource "azuread_service_principal" "landing_zone" {
 # Role Assignments
 ############################################
 
-resource "azurerm_role_assignment" "service_principal_contributor" {
-  scope              = azurerm_resource_group.main.id
-  role_definition_name = "Contributor"
-  principal_id       = azuread_service_principal.landing_zone.object_id
+resource "azurerm_role_assignment" "service_principal_reader" {
+  scope                = azurerm_resource_group.main.id
+  role_definition_name = "Reader"
+  principal_id         = azuread_service_principal.landing_zone.object_id
 }
 
 ############################################
@@ -94,7 +94,7 @@ resource "azurerm_user_assigned_identity" "app" {
 }
 
 resource "azurerm_role_assignment" "app_managed_identity" {
-  scope              = azurerm_resource_group.main.id
-  role_definition_name = "Contributor"
-  principal_id       = azurerm_user_assigned_identity.app.principal_id
+  scope                = azurerm_resource_group.main.id
+  role_definition_name = "Reader"
+  principal_id         = azurerm_user_assigned_identity.app.principal_id
 }

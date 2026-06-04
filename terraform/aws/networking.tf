@@ -19,8 +19,10 @@ resource "aws_vpc" "main" {
 # VPC Flow Logs
 ############################################
 
-resource "aws_flow_log_traffic_type" "main" {
+resource "aws_flow_log" "main" {
+  count               = var.enable_flow_logs ? 1 : 0
   resource_type       = "VPC"
+  resource_id         = aws_vpc.main.id
   traffic_type        = "ALL"
   log_destination     = aws_cloudwatch_log_group.vpc_flow_logs.arn
   iam_role_arn        = aws_iam_role.vpc_flow_logs.arn
@@ -40,10 +42,10 @@ resource "aws_flow_log_traffic_type" "main" {
 }
 
 resource "aws_ec2_network_insights_path" "vpc_flow" {
-  count              = var.enable_flow_logs ? 1 : 0
-  source             = aws_vpc.main.id
-  destination        = aws_vpc.main.id
-  protocol           = "tcp"
+  count      = var.enable_flow_logs ? 1 : 0
+  source     = aws_vpc.main.id
+  destination = aws_vpc.main.id
+  protocol   = "tcp"
 }
 
 ############################################
@@ -239,48 +241,54 @@ resource "aws_network_acl" "public" {
   )
 }
 
-resource "aws_network_acl_rule" "public_inbound" {
+resource "aws_network_acl_rule" "public_inbound_http" {
   network_acl_id = aws_network_acl.public.id
   rule_number    = 100
-  protocol       = "-1"
+  protocol       = "tcp"
   rule_action    = "allow"
-  cidr_block     = "0.0.0.0/0"
+  cidr_block     = var.allowed_public_cidrs[0]
+  from_port      = 80
+  to_port        = 80
 }
 
-resource "aws_network_acl_rule" "public_outbound" {
+resource "aws_network_acl_rule" "public_inbound_https" {
+  network_acl_id = aws_network_acl.public.id
+  rule_number    = 110
+  protocol       = "tcp"
+  rule_action    = "allow"
+  cidr_block     = var.allowed_public_cidrs[0]
+  from_port      = 443
+  to_port        = 443
+}
+
+resource "aws_network_acl_rule" "public_outbound_http_https" {
   network_acl_id = aws_network_acl.public.id
   rule_number    = 100
-  protocol       = "-1"
+  protocol       = "tcp"
   rule_action    = "allow"
   cidr_block     = "0.0.0.0/0"
+  from_port      = 80
+  to_port        = 443
   egress         = true
 }
 
-resource "aws_network_acl" "private" {
-  vpc_id     = aws_vpc.main.id
-  subnet_ids = aws_subnet.private[*].id
-
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${var.project_name}-private-nacl"
-    }
-  )
-}
-
-resource "aws_network_acl_rule" "private_inbound" {
+resource "aws_network_acl_rule" "private" {
   network_acl_id = aws_network_acl.private.id
   rule_number    = 100
-  protocol       = "-1"
+  protocol       = "tcp"
   rule_action    = "allow"
-  cidr_block     = "0.0.0.0/0"
+  cidr_block     = var.vpc_cidr
+  from_port      = 0
+  to_port        = 65535
 }
 
 resource "aws_network_acl_rule" "private_outbound" {
   network_acl_id = aws_network_acl.private.id
   rule_number    = 100
-  protocol       = "-1"
+  protocol       = "tcp"
   rule_action    = "allow"
   cidr_block     = "0.0.0.0/0"
+  from_port      = 443
+  to_port        = 443
   egress         = true
 }

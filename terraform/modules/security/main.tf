@@ -16,15 +16,15 @@ resource "google_project_iam_member" "monitoring_role" {
   member  = "serviceAccount:${google_service_account.security_scanner.email}"
 }
 
-resource "google_project_iam_member" "scc_admin" {
+resource "google_project_iam_member" "scc_finding_editor" {
   count   = var.enable_security_center && length(trimspace(var.org_id)) > 0 ? 1 : 0
   project = var.project_id
-  role    = "roles/securitycenter.admin"
+  role    = "roles/securitycenter.findingsEditor"
   member  = "serviceAccount:${google_service_account.security_scanner.email}"
 }
 
 resource "google_security_center_organization_settings" "scc_settings" {
-  count                 = var.enable_security_center && length(trimspace(var.org_id)) > 0 ? 1 : 0
-  org_id                = var.org_id
+  count                  = var.enable_security_center && length(trimspace(var.org_id)) > 0 ? 1 : 0
+  org_id                 = var.org_id
   enable_asset_discovery = true
 }

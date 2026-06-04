@@ -114,6 +114,18 @@ variable "common_tags" {
   }
 }
 
+variable "allowed_admin_cidrs" {
+  description = "CIDR blocks allowed for administrative access such as SSH."
+  type        = list(string)
+  default     = ["10.0.0.0/16"]
+}
+
+variable "allowed_public_cidrs" {
+  description = "CIDR blocks allowed for public inbound services."
+  type        = list(string)
+  default     = ["203.0.113.0/24"]
+}
+
 variable "enable_advanced_monitoring" {
   description = "Enable detailed monitoring and alerting"
   type        = bool

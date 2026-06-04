@@ -104,7 +104,7 @@ resource "azurerm_network_security_rule" "public_inbound_http" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "80"
-  source_address_prefix       = "*"
+  source_address_prefixes     = var.allowed_public_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.main.name
   network_security_group_name = azurerm_network_security_group.public.name
@@ -118,22 +118,22 @@ resource "azurerm_network_security_rule" "public_inbound_https" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "443"
-  source_address_prefix       = "*"
+  source_address_prefixes     = var.allowed_public_cidrs
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.main.name
   network_security_group_name = azurerm_network_security_group.public.name
 }
 
 resource "azurerm_network_security_rule" "public_outbound" {
-  name                        = "AllowAllOutbound"
+  name                        = "AllowOutboundHTTPHTTPS"
   priority                    = 100
   direction                   = "Outbound"
   access                      = "Allow"
-  protocol                    = "*"
+  protocol                    = "Tcp"
   source_port_range           = "*"
-  destination_port_range      = "*"
+  destination_port_ranges     = ["80", "443"]
   source_address_prefix       = "*"
-  destination_address_prefix  = "*"
+  destination_address_prefix  = "Internet"
   resource_group_name         = azurerm_resource_group.main.name
   network_security_group_name = azurerm_network_security_group.public.name
 }
@@ -170,15 +170,15 @@ resource "azurerm_network_security_rule" "private_inbound_vnet" {
 }
 
 resource "azurerm_network_security_rule" "private_outbound" {
-  name                        = "AllowAllOutbound"
+  name                        = "AllowOutboundHTTPHTTPSDNS"
   priority                    = 100
   direction                   = "Outbound"
   access                      = "Allow"
-  protocol                    = "*"
+  protocol                    = "Tcp"
   source_port_range           = "*"
-  destination_port_range      = "*"
+  destination_port_ranges     = ["53", "80", "443"]
   source_address_prefix       = "*"
-  destination_address_prefix  = "*"
+  destination_address_prefix  = "Internet"
   resource_group_name         = azurerm_resource_group.main.name
   network_security_group_name = azurerm_network_security_group.private.name
 }

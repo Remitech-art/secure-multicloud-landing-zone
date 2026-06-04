@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 COMPLIANCE_RULES = [
     "no-public-s3",
@@ -18,10 +19,12 @@ def scan_compliance(path: Path):
 
     for file in files:
         text = file.read_text(encoding="utf-8")
-        if "0.0.0.0/0" in text and "cidr" in text:
-            findings.append("Potential open network access in {}".format(file))
-        if "roles/owner" in text or "Owner" in text:
-            findings.append("Potential overly broad IAM role use in {}".format(file))
-        if "enable_logging" in text and "false" in text:
-            findings.append("Logging appears disabled in {}".format(file))
-    return findings
+        if re.search(r"0\.0\.0\.0/0", text):
+            findings.append(f"C001: Open network access detected in {file}")
+        if re.search(r"roles/(owner|editor)", text, re.IGNORECASE):
+            findings.append(f"C002: Overly broad IAM role definition detected in {file}")
+        if re.search(r"enable_logging\s*=\s*false", text, re.IGNORECASE):
+            findings.append(f"C003: Logging appears disabled in {file}")
+        if re.search(r"resource \"google_storage_bucket\"[\s\S]*?acl\s*=\s*\"public-read\"", text, re.IGNORECASE):
+            findings.append(f"C004: Public storage ACL found in {file}")
+    return sorted(set(findings))

@@ -107,6 +107,18 @@ variable "common_tags" {
   }
 }
 
+variable "allowed_public_cidrs" {
+  description = "CIDR blocks allowed for public inbound access."
+  type        = list(string)
+  default     = ["203.0.113.0/24"]
+}
+
+variable "allowed_admin_cidrs" {
+  description = "CIDR blocks authorized for administrator access."
+  type        = list(string)
+  default     = ["203.0.113.0/24"]
+}
+
 variable "enable_bastion_host" {
   description = "Enable Azure Bastion host for secure RDP/SSH access"
   type        = bool

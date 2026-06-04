@@ -10,14 +10,14 @@ resource "google_monitoring_alert_policy" "security_alert" {
   display_name = "Module Security Alert Policy"
   combiner     = "OR"
   conditions {
-    display_name = "Unauthorized access attempt"
+    display_name = "High CPU utilization alert"
     condition_threshold {
-      filter          = "resource.type = \"gce_instance\" AND metric.type = \"logging/user/latency\""
+      filter          = "resource.type = \"gce_instance\" AND metric.type = \"compute.googleapis.com/instance/cpu/utilization\""
       comparison      = "COMPARISON_GT"
-      threshold_value = 0
-      duration        = "60s"
+      threshold_value = 0.9
+      duration        = "300s"
       aggregations {
-        alignment_period   = "60s"
+        alignment_period   = "300s"
         per_series_aligner = "ALIGN_MEAN"
       }
     }

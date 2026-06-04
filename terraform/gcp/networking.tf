@@ -32,19 +32,32 @@ resource "google_compute_firewall" "allow-internal" {
     protocol = "icmp"
   }
 
-  source_ranges = ["10.10.0.0/16"]
+  source_ranges = values(var.subnets)
   project       = var.project_id
 }
 
-resource "google_compute_firewall" "allow-ssh-https" {
-  name    = "${var.network_name}-allow-ssh-https"
+resource "google_compute_firewall" "allow-ssh" {
+  name    = "${var.network_name}-allow-ssh"
   network = google_compute_network.vpc.name
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "443", "80"]
+    ports    = ["22"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = var.allowed_admin_cidrs
+  project       = var.project_id
+}
+
+resource "google_compute_firewall" "allow-http-https" {
+  name    = "${var.network_name}-allow-http-https"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443"]
+  }
+
+  source_ranges = var.allowed_public_cidrs
   project       = var.project_id
 }

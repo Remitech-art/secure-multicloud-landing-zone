@@ -1,6 +1,32 @@
 from pathlib import Path
+import re
 
-KEYWORDS = ["admin", "*", "roles/owner", "allow", "disable"]
+RULES = [
+    {
+        "id": "TF001",
+        "pattern": r"roles/owner",
+        "message": "Owner role found in Terraform; use least-privilege roles instead.",
+        "remediation": "Replace wide owner assignments with scoped role definitions."
+    },
+    {
+        "id": "TF002",
+        "pattern": r"0\.0\.0\.0/0",
+        "message": "Open network access detected in Terraform; tighten CIDR ranges for public and admin access.",
+        "remediation": "Replace wildcard CIDRs with approved IP ranges or managed access controls."
+    },
+    {
+        "id": "TF003",
+        "pattern": r"enable_logging\s*=\s*false",
+        "message": "Logging is disabled in Terraform configuration.",
+        "remediation": "Enable resource logging and monitoring for audit visibility."
+    },
+    {
+        "id": "TF004",
+        "pattern": r"google_project_iam_member[\s\S]*?roles/iam\.serviceAccountUser",
+        "message": "Service account user binding found; review whether the service account needs this permission.",
+        "remediation": "Audit service account roles and reduce to only required permissions."
+    }
+]
 
 
 def scan_terraform(path: Path):
@@ -12,10 +38,7 @@ def scan_terraform(path: Path):
     findings = []
     for tf_file in files:
         content = tf_file.read_text(encoding="utf-8")
-        if "roles/owner" in content:
-            findings.append(f"Owner role found in {tf_file}")
-        if "google_project_iam_member" in content and "roles/iam.serviceAccountUser" in content:
-            findings.append(f"Service account user binding detected in {tf_file}")
-        if "enable_logging" in content and "false" in content:
-            findings.append(f"Logging may be disabled in {tf_file}")
-    return findings
+        for rule in RULES:
+            if re.search(rule["pattern"], content, re.IGNORECASE | re.MULTILINE):
+                findings.append(f"{rule['id']}: {rule['message']} ({tf_file})")
+    return sorted(set(findings))
